@@ -10,8 +10,15 @@
 
 typedef char Result;
 
+struct s_words {
+	char **arr;
+	int n;
+};
+
+typedef struct s_words Words;
+
 int main(int, char**);
-char **read_file(char*, unsigned int);
+Words read_file(char*, int);
 bool is_in(char, char*);
 void Example_print_results(Result*);
 Result *cw(char*, char*);
@@ -36,16 +43,21 @@ int main(int argc, char **argv) {
 This function reads the text file of the word list
 and returns it as an array of strings
 */
-char **read_file(char *filename, unsigned int max) {
+Words read_file(char *filename, int max) {
 	char buf[8];
-	unsigned int i, size;
+	int i, size;
 	FILE *fd;
-	static char **ret;
+	char **ret;
+	Words words;
 
 	fd = fopen(filename, "r"); 
 	if (!fd) {
 		perror("fopen");
-		return (char **)0;
+		words = (Words) {
+			.arr = (char **)0,
+			.n = 0
+		};
+		return words;
 	}
 
 	size = max * 5;
@@ -53,11 +65,16 @@ char **read_file(char *filename, unsigned int max) {
 	if (!ret) {
 		fclose(fd);
 		perror("malloc");
-
-		return (char **)0;
+		words = (Words) {
+			.arr = (char **)0,
+			.n = 0
+		};
+		return words;
 	}
 
+	i = 0;
 	memset(buf, 0, 8);
+
 	while (fgets(buf, 7, fd)) {
 		size = strlen(buf);
 
@@ -73,9 +90,27 @@ char **read_file(char *filename, unsigned int max) {
 			memset(buf, 0, 8);
 			continue;
 		}
+
+		ret[i][0] = buf[0];
+		ret[i][1] = buf[1];
+		ret[i][2] = buf[2];
+		ret[i][3] = buf[3];
+		ret[i][4] = buf[4];
+
+		memset(buf, 0, 8);
+		i++;
+
+		if (max <= i)
+			break;
 	}
 
-	return ret;
+	fclose(fd);
+	words = (Words) {
+		.arr = ret,
+		.n = i
+	};
+
+	return words;
 }
 
 /*
