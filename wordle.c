@@ -7,69 +7,53 @@
 #define ResultGreen    1
 #define ResultYellow   2
 #define ResultRed      4
+#define max            5195
 
 typedef char Result;
 
-struct s_words {
-	char **arr;
-	int n;
-};
-
-typedef struct s_words Words;
-
 int main(int, char**);
-Words read_file(char*, int);
+int read_file(char*);
 bool is_in(char, char*);
 void Example_print_results(Result*);
 Result *cw(char*, char*);
 Result cc(char, int, char*);
 
+static char words[max][5];
+
 int main(int argc, char **argv) {
-	char *correct, *guess;
-	Result *res;
-	if (argc < 3) {
-		fprintf(stderr, "Usage: %s CORRECTWORD GUESSWORD\n", argv[0]);
-		return -1;	
+	int n;
+
+
+	n = read_file("wordlist.txt");
+	if (n < 0)
+		printf("Failed\n");
+	else {
+		printf("n: %d\n", n);
+		printf("nr 100: ");
+		int i;
+		for (i = 0; i < 5; ++i)
+			printf("%c", words[100][i]);
+		printf("\n");
 	}
-
-	correct = argv[1];
-	guess = argv[2];
-
-	res = cw(guess, correct);
-	Example_print_results(res);
+	return 0;
 }
 
 /* 
 This function reads the text file of the word list
 and returns it as an array of strings
 */
-Words read_file(char *filename, int max) {
+
+
+int read_file(char *filename) {
 	char buf[8];
 	int i, size;
+
 	FILE *fd;
-	char **ret;
-	Words words;
 
 	fd = fopen(filename, "r"); 
 	if (!fd) {
 		perror("fopen");
-		words = (Words) {
-			.arr = (char **)0,
-			.n = 0
-		};
-		return words;
-	}
-
-	size = max * 5;
-	ret = (char **)malloc(size);
-	if (!ret) {
-		fclose(fd);
-		perror("malloc");
-		words = (Words) {
-			.arr = (char **)0,
-			.n = 0
-		};
-		return words;
+		return -1;
 	}
 
 	i = 0;
@@ -83,19 +67,19 @@ Words read_file(char *filename, int max) {
 			continue;
 		}
 
-		size--;
 		buf[size] = 0;
+		size--;
 
 		if (size != 5) {
 			memset(buf, 0, 8);
 			continue;
 		}
 
-		ret[i][0] = buf[0];
-		ret[i][1] = buf[1];
-		ret[i][2] = buf[2];
-		ret[i][3] = buf[3];
-		ret[i][4] = buf[4];
+		words[i][0] = buf[0];
+		words[i][1] = buf[1];
+		words[i][2] = buf[2];
+		words[i][3] = buf[3];
+		words[i][4] = buf[4];
 
 		memset(buf, 0, 8);
 		i++;
@@ -105,12 +89,7 @@ Words read_file(char *filename, int max) {
 	}
 
 	fclose(fd);
-	words = (Words) {
-		.arr = ret,
-		.n = i
-	};
-
-	return words;
+	return i;
 }
 
 /*
