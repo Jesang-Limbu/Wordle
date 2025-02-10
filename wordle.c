@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
 
 #define ResultGreen    1
 #define ResultYellow   2
@@ -11,6 +12,8 @@
 
 typedef char Result;
 
+void seed(void);
+char *random_word(int);
 int main(int, char**);
 int read_file(char*);
 bool is_in(char, char*);
@@ -21,7 +24,8 @@ Result cc(char, int, char*);
 static char words[max][5];
 
 int main(int argc, char **argv) {
-	int n;
+	int n, x;
+	srand(time(NULL));
 
 
 	n = read_file("wordlist.txt");
@@ -29,13 +33,37 @@ int main(int argc, char **argv) {
 		printf("Failed\n");
 	else {
 		printf("n: %d\n", n);
-		printf("nr 100: ");
-		int i;
-		for (i = 0; i < 5; ++i)
-			printf("%c", words[100][i]);
-		printf("\n");
+		char correct_word[5];
+		int x;
+		printf("Random word: %s\n", random_word(n));
+		
 	}
 	return 0;
+}
+
+void seed() {
+	int x;
+
+	x = getpid();
+	srand(x);
+
+	return;
+}
+
+char *random_word(int m) {
+	static char p[8];
+	int x;
+
+	x = rand() % m;
+
+	p[0] = words[x][0];
+	p[1] = words[x][1];
+	p[2] = words[x][2];
+	p[3] = words[x][3];
+	p[4] = words[x][4];
+	p[5] = 0;
+
+	return p;
 }
 
 /* 
